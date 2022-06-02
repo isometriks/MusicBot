@@ -1,0 +1,2 @@
+defmodule MusicBot do
+end
