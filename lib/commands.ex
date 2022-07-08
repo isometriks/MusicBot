@@ -13,6 +13,10 @@ defmodule MusicBot.Commands do
             required: true
           }
         ]
+      },
+      %{
+        name: "list",
+        description: "List the idears"
       }
     ]
   end

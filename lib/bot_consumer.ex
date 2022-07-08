@@ -21,21 +21,13 @@ defmodule MusicBot.BotConsumer do
           ""
       end
 
-    # msg |> IO.inspect()
-
     cond do
-      String.contains?(message, "ryan") ->
-        Api.create_message(msg.channel_id, "Oh that guy? He sucks.")
-
-      String.contains?(message, "craig") ->
-        Api.create_message(msg.channel_id, "You mean Greg?")
-
       true ->
         :ignore
     end
   end
 
-  def handle_event({:READY, %Nostrum.Struct.Event.Ready{} = event, _ws_state}) do
+  def handle_event({:READY, %Nostrum.Struct.Event.Ready{} = _event, _ws_state}) do
     Commands.command_list()
     |> Enum.map(fn command ->
       Api.create_guild_application_command("981363310882619462", command)
@@ -48,11 +40,39 @@ defmodule MusicBot.BotConsumer do
            data: %{name: "idea", options: [%{name: "idea", value: idea}]}
          } = interaction, _ws_state}
       ) do
+    MusicBot.Ideas.create(%{
+      idea: idea,
+      author: interaction.member.user.username,
+      votes: 0
+    })
+
     Api.create_interaction_response(interaction, %{
       # ChannelMessageWithSource
       type: 4,
       data: %{
         content: "Idea added: " <> idea
+      }
+    })
+  end
+
+  def handle_event(
+        {:INTERACTION_CREATE,
+         %Nostrum.Struct.Interaction{
+           data: %{name: "list"}
+         } = interaction, _ws_state}
+      ) do
+    ideas =
+      MusicBot.Repo.all(MusicBot.Schemas.Idea)
+      |> Enum.map(fn idea ->
+        "- " <> idea.idea
+      end)
+      |> Enum.join("\n")
+
+    Api.create_interaction_response(interaction, %{
+      # ChannelMessageWithSource
+      type: 4,
+      data: %{
+        content: ideas
       }
     })
   end

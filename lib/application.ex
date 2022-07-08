@@ -6,7 +6,8 @@ defmodule MusicBot.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {MusicBot.BotSupervisor, []}
+      {MusicBot.BotSupervisor, []},
+      MusicBot.Repo
     ]
 
     opts = [strategy: :one_for_one, name: MusicBot.Supervisor]
