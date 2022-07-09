@@ -43,7 +43,10 @@ defmodule MusicBot.BotConsumer do
     MusicBot.Ideas.create(%{
       idea: idea,
       author: interaction.member.user.username,
-      votes: 0
+      votes: 0,
+      # for emoji reactions to work, gotta keep track of the message ID
+      # we we want the reaction to be on the message sent by the user or the bot?
+      src_id: interaction.id
     })
 
     Api.create_interaction_response(interaction, %{
@@ -76,6 +79,18 @@ defmodule MusicBot.BotConsumer do
       }
     })
   end
+
+  def handle_event(
+    # trying to handle emoji reactions to add votes
+    {:MESSAGE_REACTION_ADD,
+  %Nostrum.Struct.Event.MessageReactionAdd{
+emoji: 
+message_id:
+
+  }
+
+  }}
+  )
 
   # Default event handler, if you don't include this, your consumer WILL crash if
   # you don't have a method definition for each event type.

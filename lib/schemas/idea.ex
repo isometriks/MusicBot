@@ -6,6 +6,7 @@ defmodule MusicBot.Schemas.Idea do
     field(:author, :string)
     field(:idea, :string)
     field(:votes, :integer)
+    field(:src_id, :integer)
   end
 
   def changeset(idea, attrs) do
