@@ -3,6 +3,7 @@ defmodule MusicBot.BotConsumer do
 
   alias Nostrum.Api
   alias MusicBot.Commands
+  alias MusicBot.Ideas
 
   def start_link do
     Consumer.start_link(__MODULE__)
@@ -40,18 +41,25 @@ defmodule MusicBot.BotConsumer do
            data: %{name: "idea", options: [%{name: "idea", value: idea}]}
          } = interaction, _ws_state}
       ) do
-    MusicBot.Ideas.create(%{
-      idea: idea,
-      author: interaction.member.user.username,
-      votes: 0
-    })
-
     Api.create_interaction_response(interaction, %{
       # ChannelMessageWithSource
       type: 4,
       data: %{
-        content: "Idea added: " <> idea
+        content: "Thanks for the idea bb"
       }
+    })
+
+    {:ok, response} =
+      Api.create_message(
+        interaction.channel_id,
+        "#{interaction.member.user.username} has submitted the idea \"#{idea}.\""
+      )
+
+    MusicBot.Ideas.create(%{
+      idea: idea,
+      author: interaction.member.user.username,
+      votes: 0,
+      message_id: Integer.to_string(response.id)
     })
   end
 
@@ -64,7 +72,7 @@ defmodule MusicBot.BotConsumer do
     ideas =
       MusicBot.Repo.all(MusicBot.Schemas.Idea)
       |> Enum.map(fn idea ->
-        "- " <> idea.idea
+        Integer.to_string(idea.votes) <> " - " <> idea.idea
       end)
       |> Enum.join("\n")
 
@@ -72,9 +80,40 @@ defmodule MusicBot.BotConsumer do
       # ChannelMessageWithSource
       type: 4,
       data: %{
-        content: ideas
+        content: "\n" <> ideas
       }
     })
+  end
+
+  def handle_event(
+        {:MESSAGE_REACTION_ADD, %Nostrum.Struct.Event.MessageReactionAdd{} = reaction, _ws_state}
+      ) do
+    idea = MusicBot.Ideas.get_by_message_id(Integer.to_string(reaction.message_id))
+    [code] = String.to_charlist(reaction.emoji.name)
+
+    if code == 128_077 do
+      update_votes(idea, 1)
+    end
+  end
+
+  def handle_event(
+        {:MESSAGE_REACTION_REMOVE, %Nostrum.Struct.Event.MessageReactionRemove{} = reaction,
+         _ws_state}
+      ) do
+    idea = MusicBot.Ideas.get_by_message_id(Integer.to_string(reaction.message_id))
+    [code] = String.to_charlist(reaction.emoji.name)
+
+    if code == 128_077 do
+      update_votes(idea, -1)
+    end
+  end
+
+  defp update_votes(%MusicBot.Schemas.Idea{} = idea, difference) do
+    Ideas.change(idea, %{
+      votes: idea.votes + difference
+    })
+    |> Ideas.update()
+    |> IO.inspect()
   end
 
   # Default event handler, if you don't include this, your consumer WILL crash if

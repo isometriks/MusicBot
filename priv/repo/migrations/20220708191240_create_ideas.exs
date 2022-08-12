@@ -6,6 +6,7 @@ defmodule MusicBot.Repo.Migrations.CreateIdeas do
       add :author, :string
       add :idea, :string
       add :votes, :integer
+      add :message_id, :string
     end
   end
 end
