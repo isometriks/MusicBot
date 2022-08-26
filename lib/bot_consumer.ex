@@ -5,6 +5,9 @@ defmodule MusicBot.BotConsumer do
   alias MusicBot.Commands
   alias MusicBot.Ideas
 
+  alias Nostrum.Struct.Event.MessageReactionAdd
+  alias Nostrum.Struct.Event.MessageReactionRemove
+
   def start_link do
     Consumer.start_link(__MODULE__)
   end
@@ -31,7 +34,10 @@ defmodule MusicBot.BotConsumer do
   def handle_event({:READY, %Nostrum.Struct.Event.Ready{} = _event, _ws_state}) do
     Commands.command_list()
     |> Enum.map(fn command ->
-      Api.create_guild_application_command("981363310882619462", command)
+      ["381507474127060993", "981363310882619462"]
+      |> Enum.map(fn id ->
+        Api.create_guild_application_command(id, command)
+      end)
     end)
   end
 
@@ -59,10 +65,14 @@ defmodule MusicBot.BotConsumer do
       idea: idea,
       author: interaction.member.user.username,
       votes: 0,
-      message_id: Integer.to_string(response.id)
+      message_id: Integer.to_string(response.id),
+      user_id: Integer.to_string(response.author.id)
     })
+
+    Api.create_reaction(interaction.channel_id, response.id, "👍")
   end
 
+  # List all idears
   def handle_event(
         {:INTERACTION_CREATE,
          %Nostrum.Struct.Interaction{
@@ -70,9 +80,10 @@ defmodule MusicBot.BotConsumer do
          } = interaction, _ws_state}
       ) do
     ideas =
-      MusicBot.Repo.all(MusicBot.Schemas.Idea)
+      Ideas.get_all()
       |> Enum.map(fn idea ->
-        Integer.to_string(idea.votes) <> " - " <> idea.idea
+        String.pad_trailing(Integer.to_string(idea.votes), 5, " ") <>
+          String.pad_trailing(idea.author, 20, " ") <> idea.idea
       end)
       |> Enum.join("\n")
 
@@ -80,40 +91,33 @@ defmodule MusicBot.BotConsumer do
       # ChannelMessageWithSource
       type: 4,
       data: %{
-        content: "\n" <> ideas
+        content: "\n```" <> ideas <> "```"
       }
     })
   end
 
   def handle_event(
-        {:MESSAGE_REACTION_ADD, %Nostrum.Struct.Event.MessageReactionAdd{} = reaction, _ws_state}
+        {:INTERACTION_CREATE,
+         %Nostrum.Struct.Interaction{
+           data: %{name: "pick"}
+         } = interaction, _ws_state}
       ) do
-    idea = MusicBot.Ideas.get_by_message_id(Integer.to_string(reaction.message_id))
-    [code] = String.to_charlist(reaction.emoji.name)
+    idea = MusicBot.Vote.pick()
 
-    if code == 128_077 do
-      update_votes(idea, 1)
-    end
-  end
-
-  def handle_event(
-        {:MESSAGE_REACTION_REMOVE, %Nostrum.Struct.Event.MessageReactionRemove{} = reaction,
-         _ws_state}
-      ) do
-    idea = MusicBot.Ideas.get_by_message_id(Integer.to_string(reaction.message_id))
-    [code] = String.to_charlist(reaction.emoji.name)
-
-    if code == 128_077 do
-      update_votes(idea, -1)
-    end
-  end
-
-  defp update_votes(%MusicBot.Schemas.Idea{} = idea, difference) do
-    Ideas.change(idea, %{
-      votes: idea.votes + difference
+    Api.create_interaction_response(interaction, %{
+      type: 4,
+      data: %{
+        content: "The next theme is: \"" <> idea.idea <> "\" by *" <> idea.author <> "*"
+      }
     })
-    |> Ideas.update()
-    |> IO.inspect()
+  end
+
+  def handle_event({:MESSAGE_REACTION_ADD, %MessageReactionAdd{} = reaction, _ws_state}) do
+    MusicBot.Vote.reaction_add(reaction)
+  end
+
+  def handle_event({:MESSAGE_REACTION_REMOVE, %MessageReactionRemove{} = reaction, _ws_state}) do
+    MusicBot.Vote.reaction_remove(reaction)
   end
 
   # Default event handler, if you don't include this, your consumer WILL crash if

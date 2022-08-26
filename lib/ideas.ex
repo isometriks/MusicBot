@@ -16,6 +16,19 @@ defmodule MusicBot.Ideas do
     Repo.get_by(Idea, message_id: message_id)
   end
 
+  def get_all() do
+    import Ecto.Query
+
+    query =
+      from(i in Idea,
+       # where: i.votes > 0,
+        select: i,
+        order_by: [desc: :votes]
+      )
+
+    Repo.all(query)
+  end
+
   def update(idea) do
     idea
     |> Repo.update()

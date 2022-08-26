@@ -17,6 +17,10 @@ defmodule MusicBot.Commands do
       %{
         name: "list",
         description: "List the idears"
+      },
+      %{
+        name: "pick",
+        description: "Pick an idear"
       }
     ]
   end
