@@ -66,7 +66,7 @@ defmodule MusicBot.BotConsumer do
       author: interaction.member.user.username,
       votes: 0,
       message_id: Integer.to_string(response.id),
-      user_id: Integer.to_string(response.author.id)
+      user_id: Integer.to_string(interaction.member.user.id)
     })
 
     Api.create_reaction(interaction.channel_id, response.id, "👍")

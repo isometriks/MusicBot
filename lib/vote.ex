@@ -33,14 +33,9 @@ defmodule MusicBot.Vote do
   defp can_vote(%Idea{} = idea, reaction) do
     [code] = String.to_charlist(reaction.emoji.name)
 
-    reaction.member |> IO.inspect
-    reaction.member.user.id |> IO.inspect
-    "ok" |> IO.inspect
-    idea.user_id |> IO.inspect
-
     code == @thumbs_up &&
       Application.get_env(:musicbot, :bot_id) !== reaction.user_id &&
-      Integer.to_string(reaction.member.user.id) !== idea.user_id
+      Integer.to_string(reaction.user_id) !== idea.user_id
   end
 
   defp fill_list(ideas) do
