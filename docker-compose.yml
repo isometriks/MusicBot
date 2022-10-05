@@ -11,6 +11,24 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dev
+    image: musicbot
+    ports:
+      - "127.0.0.1:4000:4000"
+    depends_on:
+      - db
+    volumes:
+      - ./mix.lock:/app/mix.lock
+      - ./mix.exs:/app/mix.exs
+      - ./config:/app/config
+      - ./lib:/app/lib
+      - ./priv:/app/priv
+      - ./test:/app/test
+      - ./.credo.exs:/app/.credo.exs
 volumes:
   db:
     driver: local

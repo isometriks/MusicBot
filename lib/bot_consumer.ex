@@ -34,7 +34,8 @@ defmodule MusicBot.BotConsumer do
   def handle_event({:READY, %Nostrum.Struct.Event.Ready{} = _event, _ws_state}) do
     Commands.command_list()
     |> Enum.map(fn command ->
-      ["381507474127060993", "981363310882619462"]
+      ["1024715933845045329"]
+      #["381507474127060993", "981363310882619462"]
       |> Enum.map(fn id ->
         Api.create_guild_application_command(id, command)
       end)
