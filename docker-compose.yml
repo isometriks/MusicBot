@@ -17,6 +17,8 @@ services:
       dockerfile: ./Dockerfile
       target: dev
     image: musicbot
+    env_file:
+      - .env
     ports:
       - "127.0.0.1:4000:4000"
     depends_on:

@@ -6,7 +6,7 @@ defmodule MusicBot.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {MusicBot.BotSupervisor, []},
+      {MusicBot.BotConsumer, []},
       MusicBot.Repo
     ]
 

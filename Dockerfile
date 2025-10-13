@@ -1,4 +1,4 @@
-FROM elixir:1.13.4-alpine as dev
+FROM elixir:1.18-alpine as dev
 
 RUN apk --update --no-cache add bash
 
@@ -6,6 +6,8 @@ WORKDIR /app
 
 # install Hex + Rebar
 RUN mix do local.hex --force, local.rebar --force
+
+COPY .env ./
 
 # set build ENV
 ENV MIX_ENV=dev

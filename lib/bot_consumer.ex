@@ -35,7 +35,6 @@ defmodule MusicBot.BotConsumer do
     Commands.command_list()
     |> Enum.map(fn command ->
       ["1024715933845045329"]
-      #["381507474127060993", "981363310882619462"]
       |> Enum.map(fn id ->
         Api.create_guild_application_command(id, command)
       end)
@@ -59,15 +58,15 @@ defmodule MusicBot.BotConsumer do
     {:ok, response} =
       Api.create_message(
         interaction.channel_id,
-        "#{interaction.member.user.username} has submitted the idea \"#{idea}.\""
+        "#{interaction.member.nick} has submitted the idea \"#{idea}.\""
       )
 
     MusicBot.Ideas.create(%{
       idea: idea,
-      author: interaction.member.user.username,
+      author: interaction.member.nick,
       votes: 0,
       message_id: Integer.to_string(response.id),
-      user_id: Integer.to_string(interaction.member.user.id)
+      user_id: Integer.to_string(interaction.member.user_id)
     })
 
     Api.create_reaction(interaction.channel_id, response.id, "👍")

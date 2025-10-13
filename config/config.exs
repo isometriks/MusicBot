@@ -11,5 +11,5 @@ config :musicbot, MusicBot.Repo,
   hostname: "db"
 
 config :nostrum,
-  token: "OTgxMzQ0NjAwMTI2MDI5ODM0.G0yn0t.BnIAChG6rIgMAs8bBSy4u7RoktBoRzmSCnloKI",
+  token: System.fetch_env!("TOKEN"),
   gateway_intents: :nonprivileged
