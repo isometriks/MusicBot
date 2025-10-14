@@ -34,6 +34,10 @@ defmodule MusicBot.Commands do
             required: true
           }
         ]
+      },
+      %{
+        name: "ryansucks",
+        description: "Show appreciation for Ryan"
       }
     ]
   end

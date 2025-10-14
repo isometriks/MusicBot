@@ -166,6 +166,21 @@ defmodule MusicBot.BotConsumer do
     end
   end
 
+  def handle_event(
+        {:INTERACTION_CREATE,
+         %Nostrum.Struct.Interaction{
+           data: %{name: "ryansucks"}
+         } = interaction, _ws_state}
+      ) do
+    Api.Interaction.create_response(interaction, %{
+      # ChannelMessageWithSource
+      type: 4,
+      data: %{
+        content: "Ryan sucks, he is the worst."
+      }
+    })
+  end
+
   def handle_event({:MESSAGE_REACTION_ADD, %MessageReactionAdd{} = reaction, _ws_state}) do
     MusicBot.Vote.reaction_add(reaction)
     MusicBot.Choose.reaction_add(reaction)
