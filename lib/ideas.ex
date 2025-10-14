@@ -21,7 +21,7 @@ defmodule MusicBot.Ideas do
 
     query =
       from(i in Idea,
-       # where: i.votes > 0,
+        where: i.active == true,
         select: i,
         order_by: [desc: :votes]
       )
