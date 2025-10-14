@@ -55,12 +55,12 @@ defmodule MusicBot.BotConsumer do
     {:ok, response} =
       Api.Message.create(
         interaction.channel_id,
-        "#{interaction.member.nick} has submitted the idea \"#{idea}.\""
+        "#{interaction.user.username} has submitted the idea \"#{idea}.\""
       )
 
     MusicBot.Ideas.create(%{
       idea: idea,
-      author: interaction.member.nick,
+      author: interaction.user.username,
       votes: 0,
       message_id: Integer.to_string(response.id),
       user_id: Integer.to_string(interaction.member.user_id)
