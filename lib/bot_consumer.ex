@@ -4,6 +4,7 @@ defmodule MusicBot.BotConsumer do
   alias Nostrum.Api
   alias MusicBot.Commands
   alias MusicBot.Ideas
+  alias MusicBot.Choose
 
   alias Nostrum.Struct.Event.MessageReactionAdd
   alias Nostrum.Struct.Event.MessageReactionRemove
@@ -106,14 +107,28 @@ defmodule MusicBot.BotConsumer do
         content: "The next theme is: \"" <> idea.idea <> "\" by *" <> idea.author <> "*"
       }
     })
+
+    # Get the message ID from the response
+    case Api.Interaction.original_response(interaction) do
+      {:ok,
+        %Nostrum.Struct.Message{
+          id: message_id
+        }} ->
+        Choose.store_pick(message_id, idea, interaction)
+
+      _ ->
+        :original_response_not_found
+    end
   end
 
   def handle_event({:MESSAGE_REACTION_ADD, %MessageReactionAdd{} = reaction, _ws_state}) do
     MusicBot.Vote.reaction_add(reaction)
+    MusicBot.Choose.reaction_add(reaction)
   end
 
   def handle_event({:MESSAGE_REACTION_REMOVE, %MessageReactionRemove{} = reaction, _ws_state}) do
     MusicBot.Vote.reaction_remove(reaction)
+    MusicBot.Choose.reaction_remove(reaction)
   end
 
   # Default event handler, if you don't include this, your consumer WILL crash if

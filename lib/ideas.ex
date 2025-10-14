@@ -12,6 +12,10 @@ defmodule MusicBot.Ideas do
     |> Repo.insert()
   end
 
+  def get_by_id(idea_id) do
+    Repo.get(Idea, idea_id)
+  end
+
   def get_by_message_id(message_id) do
     Repo.get_by(Idea, message_id: message_id)
   end
