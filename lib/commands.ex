@@ -21,6 +21,19 @@ defmodule MusicBot.Commands do
       %{
         name: "pick",
         description: "Pick an idear"
+      },
+      %{
+        name: "bully",
+        description: "Bully someone to pick a song for Music League",
+        options: [
+          %{
+            # String
+            type: 3,
+            name: "name",
+            description: "The name of the person to bully",
+            required: true
+          }
+        ]
       }
     ]
   end

@@ -96,6 +96,51 @@ defmodule MusicBot.BotConsumer do
   def handle_event(
         {:INTERACTION_CREATE,
          %Nostrum.Struct.Interaction{
+           data: %{name: "bully", options: [%{name: "name", value: name}]}
+         } = interaction, _ws_state}
+      ) do
+    bully_phrases = [
+      "Hey #{name}, the clock is ticking! Pick a song before you become the reason we lose this round! ⏰",
+      "#{name}, your procrastination skills are impressive, but Music League needs a song pick more than your indecision! 🎵",
+      "Listen up #{name}, that submit button won't click itself! Get moving! 🔥",
+      "#{name}, while you're sitting there contemplating life, the deadline is approaching faster than your last-minute panic! ⚡",
+      "Yo #{name}! The only thing worse than your music taste would be not picking anything at all! 😤",
+      "#{name}, stop scrolling through your playlist like you're choosing a life partner and just pick something! 📱",
+      "#{name}, tick tock goes the clock, but your song selection is moving at the speed of molasses! 🐌",
+      "Hey #{name}, remember that time you said you'd pick a song? Yeah, me neither, because you still haven't! 🤔",
+      "#{name}, your indecisiveness is so legendary, it should have its own Wikipedia page! Pick a song already! 📖",
+      "#{name}, I've seen glaciers move faster than your song selection process! Speed it up! 🧊",
+      "#{name}, the suspense of waiting for your pick is killing us... literally! Save us from this agony! 💀",
+      "#{name}, at this rate, the Music League round will end before you even open Spotify! Move it! 🏃‍♂️",
+      "#{name}, your playlist paralysis is showing! Just close your eyes and pick something, anything! 👀",
+      "#{name}, I bet you take longer to pick a song than it takes to actually listen to one! Prove me wrong! 🎧",
+      "#{name}, the deadline is breathing down your neck like a hungry dragon! Feed it a song pick! 🐲",
+      "#{name}, your hesitation is so intense, it could power a small city! Channel that energy into picking a song! ⚡",
+      "#{name}, even a Magic 8-Ball makes decisions faster than you! Shake things up and submit something! 🎱",
+      "#{name}, your music library is crying from neglect! Show it some love and pick a track! 😢",
+      "#{name}, I've watched paint dry with more excitement than waiting for your song choice! Let's go! 🎨",
+      "#{name}, you're treating this like a life-or-death decision when it's just Music League! Pick something fun! 🎭",
+      "#{name}, your overthinking could win Olympic gold! Now use that determination to submit a song! 🥇",
+      "#{name}, the only thing missing from your playlist browsing is a rocking chair and some knitting! Speed up! 🪑",
+      "#{name}, you've got more songs than a jukebox but the commitment of a ghost! Make it happen! 👻",
+      "#{name}, even snails are judging your song selection speed right now! Don't let them win! 🐌",
+      "#{name}, your procrastination game is so strong it deserves its own soundtrack! But first, pick a song for us! 🎼"
+    ]
+
+    random_phrase = Enum.random(bully_phrases)
+
+    Api.Interaction.create_response(interaction, %{
+      # ChannelMessageWithSource
+      type: 4,
+      data: %{
+        content: random_phrase
+      }
+    })
+  end
+
+  def handle_event(
+        {:INTERACTION_CREATE,
+         %Nostrum.Struct.Interaction{
            data: %{name: "pick"}
          } = interaction, _ws_state}
       ) do
