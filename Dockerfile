@@ -1,6 +1,6 @@
 FROM elixir:1.18-alpine as dev
 
-RUN apk --update --no-cache add bash
+RUN apk --update --no-cache add bash git
 
 WORKDIR /app
 

@@ -1,5 +1,5 @@
 defmodule MusicBot.BotConsumer do
-  use Nostrum.Consumer
+  @behaviour Nostrum.Consumer
 
   alias Nostrum.Api
   alias MusicBot.Commands
@@ -8,13 +8,9 @@ defmodule MusicBot.BotConsumer do
   alias Nostrum.Struct.Event.MessageReactionAdd
   alias Nostrum.Struct.Event.MessageReactionRemove
 
-  def start_link do
-    Consumer.start_link(__MODULE__)
-  end
-
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
-    message =
-      case Api.get_channel_message(msg.channel_id, msg.id) do
+    _message =
+      case Api.Message.get(msg.channel_id, msg.id) do
         {:ok,
          %Nostrum.Struct.Message{
            content: content
@@ -36,7 +32,7 @@ defmodule MusicBot.BotConsumer do
     |> Enum.map(fn command ->
       ["1024715933845045329"]
       |> Enum.map(fn id ->
-        Api.create_guild_application_command(id, command)
+        Api.ApplicationCommand.create_guild_command(id, command)
       end)
     end)
   end
@@ -47,7 +43,7 @@ defmodule MusicBot.BotConsumer do
            data: %{name: "idea", options: [%{name: "idea", value: idea}]}
          } = interaction, _ws_state}
       ) do
-    Api.create_interaction_response(interaction, %{
+    Api.Interaction.create_response(interaction, %{
       # ChannelMessageWithSource
       type: 4,
       data: %{
@@ -56,7 +52,7 @@ defmodule MusicBot.BotConsumer do
     })
 
     {:ok, response} =
-      Api.create_message(
+      Api.Message.create(
         interaction.channel_id,
         "#{interaction.member.nick} has submitted the idea \"#{idea}.\""
       )
@@ -69,7 +65,7 @@ defmodule MusicBot.BotConsumer do
       user_id: Integer.to_string(interaction.member.user_id)
     })
 
-    Api.create_reaction(interaction.channel_id, response.id, "👍")
+    Api.Message.react(interaction.channel_id, response.id, "%F0%9F%91%8D")
   end
 
   # List all idears
@@ -87,7 +83,7 @@ defmodule MusicBot.BotConsumer do
       end)
       |> Enum.join("\n")
 
-    Api.create_interaction_response(interaction, %{
+    Api.Interaction.create_response(interaction, %{
       # ChannelMessageWithSource
       type: 4,
       data: %{
@@ -104,7 +100,7 @@ defmodule MusicBot.BotConsumer do
       ) do
     idea = MusicBot.Vote.pick()
 
-    Api.create_interaction_response(interaction, %{
+    Api.Interaction.create_response(interaction, %{
       type: 4,
       data: %{
         content: "The next theme is: \"" <> idea.idea <> "\" by *" <> idea.author <> "*"

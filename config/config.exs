@@ -9,7 +9,3 @@ config :musicbot, MusicBot.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "db"
-
-config :nostrum,
-  token: System.fetch_env!("TOKEN"),
-  gateway_intents: :nonprivileged

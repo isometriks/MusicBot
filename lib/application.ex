@@ -5,12 +5,18 @@ defmodule MusicBot.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      {MusicBot.BotConsumer, []},
-      MusicBot.Repo
-    ]
+    bot_options = %{
+      consumer: MusicBot.BotConsumer,
+      intents: [
+        :direct_messages,
+        :guild_messages,
+        :message_content,
+        :guild_message_reactions,
+      ],
+      wrapped_token: fn -> System.fetch_env!("TOKEN") end
+    }
 
-    opts = [strategy: :one_for_one, name: MusicBot.Supervisor]
-    Supervisor.start_link(children, opts)
+    children = [{Nostrum.Bot, bot_options}, MusicBot.Repo]
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 end

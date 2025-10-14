@@ -38,6 +38,10 @@ defmodule MusicBot.Vote do
       Integer.to_string(reaction.user_id) !== idea.user_id
   end
 
+  defp can_vote(nil, _reaction) do
+    false
+  end
+
   defp fill_list(ideas) do
     ideas
     |> Enum.map(fn %Idea{} = idea ->
